@@ -1,0 +1,97 @@
+/**
+ * podcast-cli: A simple podcast client for the command-line interface.
+ * Copyright (C) 2011 Rafael G. Martins <rafael@rafaelmartins.eng.br>
+ *
+ * This program can be distributed under the terms of the GPL-2.
+ * See the file COPYING.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* HAVE_CONFIG_H */
+
+#include <glib.h>
+#include <stdlib.h>
+#include "config-parser.h"
+
+config_t* load_config(GError** err){
+    
+    GKeyFile *k = g_key_file_new();
+    
+    // load config file
+    gchar* config_file = g_build_filename(g_get_home_dir(), ".podcastrc", NULL);
+    if(!g_key_file_load_from_file(k, config_file, G_KEY_FILE_NONE, err)){
+        g_free(config_file);
+        return NULL;
+    }
+    g_free(config_file);
+    
+    // initialize config structures
+    config_t* config = (config_t*) malloc(sizeof(config_t));
+    if(config == NULL){
+        g_printerr("Failed to alloc memory for read the config_t structure.\n");
+        return NULL;
+    }
+    config->main_config = (main_config_t*) malloc(sizeof(main_config_t));
+    if(config->main_config == NULL){
+        g_printerr("Failed to alloc memory for read the main_config_t structure.\n");
+        return NULL;
+    }
+    
+    // storage variables
+    gsize num_keys;
+    gchar **keys;
+    gchar *tmp = NULL;
+    
+    // load main config parameters
+    if(!g_key_file_has_group(k, "main")){
+        g_printerr("Your configuration file should have a [main] section.\n");
+        return NULL;
+    }
+    keys = g_key_file_get_keys(k, "main", &num_keys, err);
+    for(int i=0; i<num_keys; i++){
+        tmp = g_key_file_get_value(k, "main", keys[i], err);
+        if(*err != NULL){
+            return NULL;
+        }
+        if(g_strcmp0(keys[i], "download_command") == 0){
+            config->main_config->download_command = g_strdup(tmp);
+            g_free(tmp);
+        }
+        else if(g_strcmp0(keys[i], "player_command") == 0){
+            config->main_config->player_command = g_strdup(tmp);
+            g_free(tmp);
+        }
+        else if(g_strcmp0(keys[i], "media_directory") == 0){
+            config->main_config->media_directory = g_strdup(tmp);
+            g_free(tmp);
+        }
+        else{
+            g_printerr("Invalid configuration parameter: %s.\n", keys[i]);
+            g_free(tmp);
+            return NULL;
+        }
+    }
+    g_strfreev(keys);
+    
+    // load feed urls
+    if(!g_key_file_has_group(k, "podcast")){
+        g_printerr("Your configuration file should have a [podcast] section.\n");
+        return NULL;
+    }
+    config->podcasts = g_array_new(FALSE, FALSE, sizeof(podcast_t));
+    tmp_item = NULL;
+    keys = g_key_file_get_keys(k, "podcast", &num_keys, err);
+    for(int i=0; i<num_keys; i++){
+        tmp = g_key_file_get_value(k, "podcast", keys[i], err);
+        if(*err != NULL){
+            return NULL;
+        }
+        tmp_item = (podcast_t)
+        g_array_append_val(config->podcasts, );
+        
+        
+    g_key_file_free(k);
+    return config;
+}
+    
