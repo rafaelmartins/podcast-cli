@@ -24,9 +24,11 @@ typedef struct{
 
 typedef struct{
     main_config_t* main_config;
-    GArray* podcasts;
+    podcast_t* podcasts;
+    gsize pod_len;
 } config_t;
 
 config_t* load_config(GError** err);
+void free_config(config_t* config);
 
 #endif /* CONFIG_PARSER_H */

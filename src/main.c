@@ -9,5 +9,6 @@ int main(int argc, char** argv){
     if(conf == NULL && err != NULL){
         printf("%s\n", err->message);
     }
+    free_config(conf);
     return 0;
 }

@@ -79,19 +79,35 @@ config_t* load_config(GError** err){
         g_printerr("Your configuration file should have a [podcast] section.\n");
         return NULL;
     }
-    config->podcasts = g_array_new(FALSE, FALSE, sizeof(podcast_t));
-    tmp_item = NULL;
+    config->podcasts = NULL;
     keys = g_key_file_get_keys(k, "podcast", &num_keys, err);
-    for(int i=0; i<num_keys; i++){
-        tmp = g_key_file_get_value(k, "podcast", keys[i], err);
+    for(config->pod_len = 0; config->pod_len < num_keys; config->pod_len++){
+        tmp = g_key_file_get_value(k, "podcast", keys[config->pod_len], err);
         if(*err != NULL){
             return NULL;
         }
-        tmp_item = (podcast_t)
-        g_array_append_val(config->podcasts, );
-        
+        config->podcasts = realloc(
+            config->podcasts, (config->pod_len + 1) * sizeof(podcast_t)
+        );
+        config->podcasts[config->pod_len].id = g_strdup(keys[config->pod_len]);
+        config->podcasts[config->pod_len].feed_url = g_strdup(tmp);
+        g_free(tmp);
+    }
+    g_strfreev(keys);
         
     g_key_file_free(k);
     return config;
 }
-    
+
+void free_config(config_t* config){
+    g_free(config->main_config->download_command);
+    g_free(config->main_config->media_directory);
+    g_free(config->main_config->player_command);
+    free(config->main_config);
+    for(int i=0; i<config->pod_len; i++){
+        g_free(config->podcasts[i].id);
+        g_free(config->podcasts[i].feed_url);
+    }
+    free(config->podcasts);
+    free(config);
+}
