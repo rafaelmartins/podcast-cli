@@ -9,6 +9,7 @@ int main(int argc, char** argv){
     if(conf == NULL && err != NULL){
         printf("%s\n", err->message);
     }
+    printf("%s\n", conf->podcasts[0]->feed_url);
     free_config(conf);
     return 0;
 }

@@ -86,11 +86,12 @@ config_t* load_config(GError** err){
         if(*err != NULL){
             return NULL;
         }
-        config->podcasts = realloc(
-            config->podcasts, (config->pod_len + 1) * sizeof(podcast_t)
+        config->podcasts = (podcast_t**) realloc(
+            config->podcasts, (config->pod_len + 1) * sizeof(podcast_t*)
         );
-        config->podcasts[config->pod_len].id = g_strdup(keys[config->pod_len]);
-        config->podcasts[config->pod_len].feed_url = g_strdup(tmp);
+        config->podcasts[config->pod_len] = (podcast_t*) malloc(sizeof(podcast_t));
+        config->podcasts[config->pod_len]->id = g_strdup(keys[config->pod_len]);
+        config->podcasts[config->pod_len]->feed_url = g_strdup(tmp);
         g_free(tmp);
     }
     g_strfreev(keys);
@@ -105,8 +106,9 @@ void free_config(config_t* config){
     g_free(config->main_config->player_command);
     free(config->main_config);
     for(int i=0; i<config->pod_len; i++){
-        g_free(config->podcasts[i].id);
-        g_free(config->podcasts[i].feed_url);
+        g_free(config->podcasts[i]->id);
+        g_free(config->podcasts[i]->feed_url);
+        free(config->podcasts[i]);
     }
     free(config->podcasts);
     free(config);

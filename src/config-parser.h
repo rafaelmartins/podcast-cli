@@ -24,7 +24,7 @@ typedef struct{
 
 typedef struct{
     main_config_t* main_config;
-    podcast_t* podcasts;
+    podcast_t** podcasts;
     gsize pod_len;
 } config_t;
 
