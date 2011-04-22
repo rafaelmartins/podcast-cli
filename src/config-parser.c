@@ -14,6 +14,11 @@
 #include <stdlib.h>
 #include "config-parser.h"
 
+
+static GQuark config_quark(void){
+    return g_quark_from_static_string("config-parser");
+}
+
 config_t* load_config(GError** err){
     
     GKeyFile *k = g_key_file_new();
@@ -29,12 +34,14 @@ config_t* load_config(GError** err){
     // initialize config structures
     config_t* config = (config_t*) malloc(sizeof(config_t));
     if(config == NULL){
-        g_printerr("Failed to alloc memory for read the config_t structure.\n");
+        g_set_error(err, config_quark(), CONFIG_ERR_MEMORY_ALLOC,
+            "malloc: Failed to alloc memory for read the config_t* structure.\n");
         return NULL;
     }
     config->main_config = (main_config_t*) malloc(sizeof(main_config_t));
     if(config->main_config == NULL){
-        g_printerr("Failed to alloc memory for read the main_config_t structure.\n");
+        g_set_error(err, config_quark(), CONFIG_ERR_MEMORY_ALLOC,
+            "malloc: Failed to alloc memory for read the main_config_t* structure.\n");
         return NULL;
     }
     
@@ -45,7 +52,8 @@ config_t* load_config(GError** err){
     
     // load main config parameters
     if(!g_key_file_has_group(k, "main")){
-        g_printerr("Your configuration file should have a [main] section.\n");
+        g_set_error(err, config_quark(), CONFIG_ERR_NO_MAIN,
+            "g_key_file_has_group: Your configuration file should have a [main] section.\n");
         return NULL;
     }
     keys = g_key_file_get_keys(k, "main", &num_keys, err);
@@ -67,7 +75,8 @@ config_t* load_config(GError** err){
             g_free(tmp);
         }
         else{
-            g_printerr("Invalid configuration parameter: %s.\n", keys[i]);
+            g_set_error(err, config_quark(), CONFIG_INVALID_PARAM,
+                "Invalid configuration parameter: %s.\n", keys[i]);
             g_free(tmp);
             return NULL;
         }
@@ -76,7 +85,8 @@ config_t* load_config(GError** err){
     
     // load feed urls
     if(!g_key_file_has_group(k, "podcast")){
-        g_printerr("Your configuration file should have a [podcast] section.\n");
+        g_set_error(err, config_quark(), CONFIG_ERR_NO_PODCAST,
+            "g_key_file_has_group: Your configuration file should have a [podcast] section.\n");
         return NULL;
     }
     config->podcasts = NULL;
@@ -89,7 +99,17 @@ config_t* load_config(GError** err){
         config->podcasts = (podcast_t**) realloc(
             config->podcasts, (config->pod_len + 1) * sizeof(podcast_t*)
         );
+        if(config->podcasts == NULL){
+            g_set_error(err, config_quark(), CONFIG_ERR_MEMORY_ALLOC,
+                "malloc: Failed to alloc memory for read the podcast_t** structure.\n");
+            return NULL;
+        }
         config->podcasts[config->pod_len] = (podcast_t*) malloc(sizeof(podcast_t));
+        if(config->podcasts[config->pod_len] == NULL){
+            g_set_error(err, config_quark(), CONFIG_ERR_MEMORY_ALLOC,
+                "malloc: Failed to alloc memory for read the podcast_t* structure.\n");
+            return NULL;
+        }
         config->podcasts[config->pod_len]->id = g_strdup(keys[config->pod_len]);
         config->podcasts[config->pod_len]->feed_url = g_strdup(tmp);
         g_free(tmp);

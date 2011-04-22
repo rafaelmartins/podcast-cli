@@ -28,6 +28,14 @@ typedef struct{
     gsize pod_len;
 } config_t;
 
+enum config_err {
+    CONFIG_ERR_MEMORY_ALLOC,
+    CONFIG_ERR_NO_MAIN,
+    CONFIG_ERR_NO_PODCAST,
+    CONFIG_INVALID_PARAM,
+};
+
+static GQuark config_quark(void);
 config_t* load_config(GError** err);
 void free_config(config_t* config);
 
