@@ -33,6 +33,7 @@ AS_IF([test "x$ac_cv_prog_cc_c99" = "xno"], [
 
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([GLIB], [glib-2.0])
+PKG_CHECK_MODULES([MRSS], [mrss])
 
 AC_SYS_LARGEFILE
 
