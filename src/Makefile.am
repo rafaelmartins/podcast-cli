@@ -5,6 +5,8 @@ podcast_cli_SOURCES = \
 	config-parser.h \
 	rss.c \
 	rss.h \
+	download.c \
+	download.h \
 	main.c
 
 podcast_cli_CFLAGS = \
