@@ -62,7 +62,8 @@ rss_t* load_rss(gchar* feed_url, GError** err){
                 "malloc: Failed to alloc memory for read the chapter_t* structure.\n");
             return NULL;
         }
-                
+        
+        rss->chapters[rss->chap_len]->title = g_strdup(item->title);
         rss->chapters[rss->chap_len]->url = g_strdup(item->enclosure_url);
         rss->chapters[rss->chap_len]->type = g_strdup(item->enclosure_type);
         rss->chapters[rss->chap_len]->size = item->enclosure_length;
@@ -75,6 +76,7 @@ rss_t* load_rss(gchar* feed_url, GError** err){
 
 void free_rss(rss_t* rss){
     for(int i=0; i<rss->chap_len; i++){
+        g_free(rss->chapters[i]->title);
         g_free(rss->chapters[i]->url);
         g_free(rss->chapters[i]->type);
         free(rss->chapters[i]);

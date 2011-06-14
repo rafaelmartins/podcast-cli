@@ -12,6 +12,7 @@
 #include <glib.h>
 
 typedef struct {
+    gchar* title;
     gchar* url;
     gchar* type;
     gint size;

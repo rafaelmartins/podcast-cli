@@ -1,6 +1,8 @@
 bin_PROGRAMS = podcast-cli
 
 podcast_cli_SOURCES = \
+	cli.c \
+	cli.h \
 	config-parser.c \
 	config-parser.h \
 	rss.c \
